@@ -1,4 +1,5 @@
 from flask import Flask
+import datetime
 
 from data import db_session
 from data.jobs import Job
@@ -15,48 +16,22 @@ def main():
 
 
 if __name__ == '__main__':
-
     db_session.global_init("db/blogs.sqlite")
 
-    user = User()
-    user.surname = "Scott"
-    user.name = "Ridley"
-    user.age = 21
-    user.position = "captain"
-    user.speciality = "research engineer"
-    user.address = "module_1"
-    user.email = "scott_chief@mars.org"
-    user.hashed_password = "cap"
-    user.set_password(user.hashed_password)
     session = db_session.create_session()
-    session.add(user)
-    session.commit()
-
-    user = User()
-    user.surname = "Planet"
-    user.name = "Mars"
-    user.age = 4.603E9
-    user.position = "expeditions"
-    user.speciality = "subject of study"
-    user.address = "Mars"
-    user.email = "Mars_plnet@mars.org"
-    user.hashed_password = "red_planet_for_everyone"
-    user.set_password(user.hashed_password)
-    session.add(user)
-    session.commit()
-
-    user = User()
-    user.surname = "rover"
-    user.name = "Sojourner"
-    user.age = 23
-    user.position = "equipment"
-    user.speciality = "rover"
-    user.address = "Mars"
-    user.email = "Sojourner@mars.org"
-    user.hashed_password = "where_water"
-    user.set_password(user.hashed_password)
-    session.add(user)
+    jobs = Job()
+    jobs.team_leader = 1
+    jobs.job = 'deployment of residential modules 1 and 2'
+    jobs.work_size = 15
+    jobs.collaborators = '1, 2'
+    dateTimeObj = datetime.datetime.now()
+    timestampStr = dateTimeObj.strftime("%H:%M:%S.%f - %b %d %Y")
+    jobs.start_date = timestampStr
+    jobs.is_finished = False
+    session.add(jobs)
     session.commit()
 
     main()
+
+
 
