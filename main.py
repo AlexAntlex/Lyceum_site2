@@ -1,10 +1,11 @@
-from django.shortcuts import redirect
+from werkzeug.utils import redirect
 from flask import Flask, render_template
 from flask_login import login_user, LoginManager
 
 from data import db_session
 from data.jobs import Job
 from data.users import User
+from form.add_job import JobForm
 from form.login import LoginForm
 from form.register import RegisterForm
 
@@ -40,15 +41,37 @@ def reqister():
                                    form=form,
                                    message="Такой пользователь уже есть")
         user = User(
+            surname=form.surname.data,
             name=form.name.data,
-            email=form.email.data,
-            about=form.about.data
+            age=form.age.data,
+            position=form.position.data,
+            speciality=form.speciality.data,
+            address=form.address.data,
+            email=form.email.data
         )
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/addjob', methods=['GET', 'POST'])
+def addjob():
+    form = JobForm()
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        job = Job(
+            job=form.job.data,
+            team_leader=form.team_leader.data,
+            work_size=form.work_size.data,
+            collaborators=form.collaborators.data,
+            is_finished=form.is_finished.data
+        )
+        session.add(job)
+        session.commit()
+        return redirect('/')
+    return render_template('job.html', title='Adding a job', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])

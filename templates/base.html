@@ -6,19 +6,34 @@
     <link rel="stylesheet"
           href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <style>
-        h4 {
-            color: #175c56;
-            padding: 5px;
-            }
+       @import url("static/css/style.css")
     </style>
     </head>
     <body>
-    <header class="container-fluid text-light bg-info p-2 mb-2 d-flex">
-       <div class="alert alert-info">
-           <h2>Mars one</h2>
-        </div>
-    <h4>И на Марсе будут яблони цвести!</h4>
+    <header class="flex-container bg-info p-2 mb-2 d-flex">
+        <div class="color-text-title"><h2>Mars one</h2></div>
+
+        <ul class="nav">
+           <li class="nav-item">
+                <a class="dropdown-item" href="/login">Войти</a>
+           </li>
+           <li class="nav-item">
+                <a class="dropdown-item" href="/register">Регистрация</a>
+           </li>
+           <li class="nav-item">
+                <a class="dropdown-item" href="/addjob">добавить работу</a>
+           </li>
+       </ul>
     </header>
+    <div class="color-text">
+        {% if current_user.is_authenticated %}
+             <h5>И на Марсе будут яблони цвести!
+                <p align="right">{{ current_user.name }}</p>
+             </h5>
+        {% else %}
+                <h5>И на Марсе будут яблони цвести!</h5>
+        {% endif %}
+        </div>
     <main role="main" class="container">
         {% block content %}{% endblock %}
     </main>
