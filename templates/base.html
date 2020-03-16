@@ -10,29 +10,40 @@
     </style>
     </head>
     <body>
-    <header class="flex-container bg-info p-2 mb-2 d-flex">
-        <div class="color-text-title"><h2>Mars one</h2></div>
+    <header class="flex-container">
+        <div class="container">
+            <div class="row no-gutters">
+                <div class="col-md-4">
+                    <div class="color-text-title"><h2>Mars one</h2></div>
+                </div>
+                <div class="col-auto">
+                    <div class="flex-item">
+                        {% if current_user.is_authenticated %}
+                            <ul class="nav">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="/logout">Выйти</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="/addjob">добавить работу</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="/">{{ current_user.name }} {{ current_user.surname }}</a>
+                                </li>
+                            </ul>
+                        {% else %}
 
-        <ul class="nav">
-           <li class="nav-item">
-                <a class="dropdown-item" href="/login">Войти</a>
-           </li>
-           <li class="nav-item">
-                <a class="dropdown-item" href="/register">Регистрация</a>
-           </li>
-           <li class="nav-item">
-                <a class="dropdown-item" href="/addjob">добавить работу</a>
-           </li>
-       </ul>
+                            <a class="s13" href="/login">Войти</a>
+                            <a class="s13" href="/register">Регистрация</a>
+                            <a class="ds13" href="/addjob">добавить работу</a>
+                           </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
     <div class="color-text">
-        {% if current_user.is_authenticated %}
-             <h5>И на Марсе будут яблони цвести!
-                 <p align="right"><a href="/">{{ current_user.name }} {{ current_user.surname }}</a></p>
-             </h5>
-        {% else %}
-                <h5>И на Марсе будут яблони цвести!</h5>
-        {% endif %}
+        <h5>И на Марсе будут яблони цвести!</h5>
         </div>
     <main role="main" class="container">
         {% block content %}{% endblock %}

@@ -1,6 +1,7 @@
+from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
-from flask import Flask, render_template
-from flask_login import login_user, LoginManager
+from flask import Flask, render_template, request
+from flask_login import login_user, LoginManager, login_required, current_user, logout_user
 
 from data import db_session
 from data.jobs import Job
@@ -90,10 +91,52 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
+@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_jobs(id):
+    form = JobForm()
+    if request.method == "GET":
+        session = db_session.create_session()
+        jobs = session.query(Job).filter(Job.id == id,
+                                          Job.user == current_user).first()
+        if jobs:
+            form.job.data = jobs.job
+            form.team_leader.data = jobs.team_leader
+            form.work_size.data = jobs.work_size
+            form.collaborators.data = jobs.collaborators
+            form.start_date.data = jobs.start_date
+            form.is_finished.data = jobs.is_finished
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        jobs = session.query(Job).filter(Job.id == id,
+                                         Job.user == current_user).first()
+        if jobs:
+            form.job.data = jobs.job
+            form.team_leader.data = jobs.team_leader
+            form.work_size.data = jobs.work_size
+            form.collaborators.data = jobs.collaborators
+            form.start_date.data = jobs.start_date
+            form.is_finished.data = jobs.is_finished
+            session.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('index.html', title='Works log', form=form)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     session = db_session.create_session()
     return session.query(User).get(user_id)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 if __name__ == '__main__':
