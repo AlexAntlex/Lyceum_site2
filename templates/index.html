@@ -26,8 +26,9 @@
       </tbody>
     </table>
   {% if current_user.is_authenticated and current_user == job.user %}
-    <div>
-      <a href="/{{ job.id }}" class="btn btn-secondary">Edit</a>
+    <div class="btn-group" role="group" aria-label="Basic example">
+      <a href="/job/{{ job.id }}" class="btn btn-outline-success">Edit</a>
+      <a href="/Job_delete/{{ job.id }}" class="btn btn-outline-primary">Delete</a>
     </div>
   {% endif %}
 
