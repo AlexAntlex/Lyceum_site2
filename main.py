@@ -97,8 +97,8 @@ def edit_jobs(id):
             abort(404)
     if form.validate_on_submit():
         session = db_session.create_session()
-        jobs = session.query(Job).filter(Job.id == id,
-                                         Job.user == current_user).first()
+        jobs = session.query(Job).filter(((current_user.id == 1) | Job.id == id &
+                                         Job.user == current_user)).first()
         if jobs:
             jobs.job = form.job.data
             jobs.team_leader = form.team_leader.data
@@ -117,8 +117,8 @@ def edit_jobs(id):
 @login_required
 def job_delete(id):
     session = db_session.create_session()
-    jobs = session.query(Job).filter(Job.id == id,
-                                      Job.user == current_user).first()
+    jobs = session.query(Job).filter(((current_user.id == 1) | Job.id == id &
+                                      Job.user == current_user)).first()
     if jobs:
         session.delete(jobs)
         session.commit()
