@@ -1,9 +1,10 @@
+from flask_restful import Api
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from flask import Flask, render_template, request, make_response, jsonify
 from flask_login import login_user, LoginManager, login_required, current_user, logout_user
 
-from api import jobs_api
+from api import jobs_api, users_resource
 from data import db_session
 from data.jobs import Job
 from data.users import User
@@ -13,19 +14,19 @@ from form.register import RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mars_for_everyone'
+
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+api = Api(app)
+api.add_resource(users_resource.UsersListResource, '/api/v2/users')
+api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
 
 
 def main():
     db_session.global_init("db/mars.sqlite")
     app.register_blueprint(jobs_api.blueprint)
     app.run()
-
-
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.route("/")
