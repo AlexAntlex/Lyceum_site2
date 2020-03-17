@@ -1,13 +1,13 @@
 from flask_restful import Api
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
-from flask import Flask, render_template, request, make_response, jsonify
+from flask import Flask, render_template, request
 from flask_login import login_user, LoginManager, login_required, current_user, logout_user
 
-from api import jobs_api, users_resource
+from api import jobs_api, users_resource, jobs_resource
 from data import db_session
 from data.jobs import Job
-from data.users import User
+from data.users import Job
 from form.add_job import JobForm
 from form.login import LoginForm
 from form.register import RegisterForm
@@ -21,6 +21,9 @@ login_manager.init_app(app)
 api = Api(app)
 api.add_resource(users_resource.UsersListResource, '/api/v2/users')
 api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
+
+api.add_resource(jobs_resource.JobsListResource, '/api/v2/jobs')
+api.add_resource(jobs_resource.JobsResource, '/api/v2/jobs/<int:job_id>')
 
 
 def main():
@@ -45,11 +48,11 @@ def reqister():
                                    form=form,
                                    message="Пароли не совпадают")
         session = db_session.create_session()
-        if session.query(User).filter(User.email == form.email.data).first():
+        if session.query(Job).filter(Job.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-        user = User(
+        user = Job(
             surname=form.surname.data,
             name=form.name.data,
             age=form.age.data,
@@ -138,7 +141,7 @@ def job_delete(id):
 @login_manager.user_loader
 def load_user(user_id):
     session = db_session.create_session()
-    return session.query(User).get(user_id)
+    return session.query(Job).get(user_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -146,8 +149,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         session = db_session.create_session()
-        user = session.query(User).filter(
-            User.email == form.email.data).first()
+        user = session.query(Job).filter(
+            Job.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
