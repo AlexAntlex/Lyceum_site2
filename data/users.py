@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .db_session import SqlAlchemyBase
 
 
-class Job(SqlAlchemyBase, SerializerMixin, UserMixin):
+class User(SqlAlchemyBase, SerializerMixin, UserMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,

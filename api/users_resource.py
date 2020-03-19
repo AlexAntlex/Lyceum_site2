@@ -2,13 +2,13 @@ from flask import jsonify
 from flask_restful import abort, Resource
 
 from data import db_session
-from data.users import Job
+from data.users import User
 from api.user_parser import parser
 
 
 def abort_if_user_not_found(user_id):
     session = db_session.create_session()
-    user = session.query(Job).get(user_id)
+    user = session.query(User).get(user_id)
     if not user:
         abort(404, message=f'User {user_id} not exist')
 
@@ -17,7 +17,7 @@ class UsersResource(Resource):    # one user
     def get(self, user_id):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
-        user = session.query(Job).get(user_id)
+        user = session.query(User).get(user_id)
         return jsonify({'user': user.to_dict(
             only=('email', 'name', 'position', 'surname', 'age',
                   'speciality', 'address')
@@ -26,7 +26,7 @@ class UsersResource(Resource):    # one user
     def delete(self, user_id):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
-        user = session.query(Job).get(user_id)
+        user = session.query(User).get(user_id)
         session.delete(user)
         session.commit()
         return jsonify({'success': 'OK'})
@@ -35,7 +35,7 @@ class UsersResource(Resource):    # one user
         abort_if_user_not_found(user_id)
         args = parser.parse_args()
         session = db_session.create_session()
-        user = session.query(Job).get(user_id)
+        user = session.query(User).get(user_id)
 
         user.email = args['email']
         user.name = args['name']
@@ -52,7 +52,7 @@ class UsersResource(Resource):    # one user
 class UsersListResource(Resource):     # all users
     def get(self):
         session = db_session.create_session()
-        user = session.query(Job).all()
+        user = session.query(User).all()
         return jsonify({'user': [
             item.to_dict(
                 only=('email', 'name', 'position', 'surname', 'age',
@@ -64,7 +64,7 @@ class UsersListResource(Resource):     # all users
     def post(self):
         args = parser.parse_args()
         session = db_session.create_session()
-        users = Job(
+        users = User(
             email=args['email'],
             name=args['name'],
             position=args['position'],

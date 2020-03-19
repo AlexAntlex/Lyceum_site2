@@ -7,7 +7,7 @@ from flask_login import login_user, LoginManager, login_required, current_user, 
 from api import jobs_api, users_resource, jobs_resource
 from data import db_session
 from data.jobs import Job
-from data.users import Job
+from data.users import User
 from form.add_job import JobForm
 from form.login import LoginForm
 from form.register import RegisterForm
@@ -48,11 +48,11 @@ def reqister():
                                    form=form,
                                    message="Пароли не совпадают")
         session = db_session.create_session()
-        if session.query(Job).filter(Job.email == form.email.data).first():
+        if session.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-        user = Job(
+        user = User(
             surname=form.surname.data,
             name=form.name.data,
             age=form.age.data,
@@ -108,8 +108,8 @@ def edit_jobs(id):
             abort(404)
     if form.validate_on_submit():
         session = db_session.create_session()
-        jobs = session.query(Job).filter(((current_user.id == 1) | Job.id == id &
-                                         Job.user == current_user)).first()
+        jobs = session.query(Job).filter(((current_user.id == 1) or Job.id == id) and
+                                          Job.user == current_user).first()
         if jobs:
             jobs.job = form.job.data
             jobs.team_leader = form.team_leader.data
@@ -128,8 +128,8 @@ def edit_jobs(id):
 @login_required
 def job_delete(id):
     session = db_session.create_session()
-    jobs = session.query(Job).filter(((current_user.id == 1) | Job.id == id &
-                                      Job.user == current_user)).first()
+    jobs = session.query(Job).filter(((current_user.id == 1) or Job.id == id) and
+                                      Job.user == current_user).first()
     if jobs:
         session.delete(jobs)
         session.commit()
@@ -141,7 +141,7 @@ def job_delete(id):
 @login_manager.user_loader
 def load_user(user_id):
     session = db_session.create_session()
-    return session.query(Job).get(user_id)
+    return session.query(User).get(user_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -149,8 +149,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         session = db_session.create_session()
-        user = session.query(Job).filter(
-            Job.email == form.email.data).first()
+        user = session.query(User).filter(
+            User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
