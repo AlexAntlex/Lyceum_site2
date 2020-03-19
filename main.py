@@ -95,7 +95,7 @@ def edit_jobs(id):
     form = JobForm()
     if request.method == "GET":
         session = db_session.create_session()
-        jobs = session.query(Job).filter(Job.id == id,
+        jobs = session.query(Job).filter(((current_user.id == 1) or Job.id == id) and
                                           Job.user == current_user).first()
         if jobs:
             form.job.data = jobs.job
