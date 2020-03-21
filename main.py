@@ -95,8 +95,8 @@ def edit_jobs(id):
     form = JobForm()
     if request.method == "GET":
         session = db_session.create_session()
-        jobs = session.query(Job).filter(((current_user.id == 1) or Job.id == id) and
-                                          Job.user == current_user).first()
+        jobs = session.query(Job).filter((or_(current_user.id == 1, Job.user == current_user)),
+                                         Job.id == id).first()
         if jobs:
             form.job.data = jobs.job
             form.team_leader.data = jobs.team_leader
@@ -108,8 +108,8 @@ def edit_jobs(id):
             abort(404)
     if form.validate_on_submit():
         session = db_session.create_session()
-        jobs = session.query(Job).filter(((current_user.id == 1) or Job.id == id) and
-                                          Job.user == current_user).first()
+        jobs = session.query(Job).filter((or_(current_user.id == 1, Job.user == current_user)),
+                                         Job.id == id).first()
         if jobs:
             jobs.job = form.job.data
             jobs.team_leader = form.team_leader.data
@@ -128,8 +128,8 @@ def edit_jobs(id):
 @login_required
 def job_delete(id):
     session = db_session.create_session()
-    jobs = session.query(Job).filter(((current_user.id == 1) or Job.id == id) and
-                                      Job.user == current_user).first()
+    jobs = session.query(Job).filter((or_(current_user.id == 1, Job.user == current_user)),
+                                      Job.id == id).first()
     if jobs:
         session.delete(jobs)
         session.commit()
