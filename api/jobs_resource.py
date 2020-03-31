@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import abort, Resource
 
 from data import db_session
@@ -11,6 +11,15 @@ def abort_if_job_not_found(job_id):
     jobs = session.query(Job).get(job_id)
     if not jobs:
         abort(404, message=f'Job {job_id} not exist')
+
+
+def abort_if_job_not_correct():
+    if not request.json:
+        abort(400, message='error: Empty request')
+    if not all(key in request.json for key in
+               ['team_leader', 'job', 'work_size',
+                'collaborators', 'start_date', 'is_finished']):
+        abort(400, message='error: Bad Request')
 
 
 class JobsResource(Resource):    # one job
@@ -32,6 +41,7 @@ class JobsResource(Resource):    # one job
         return jsonify({'success': 'OK'})
 
     def put(self, job_id):
+        abort_if_job_not_correct()
         abort_if_job_not_found(job_id)
         args = parser.parse_args()
         session = db_session.create_session()
@@ -61,6 +71,7 @@ class JobsListResource(Resource):     # all jobs
         })
 
     def post(self):
+        abort_if_job_not_correct()
         args = parser.parse_args()
         session = db_session.create_session()
         job = Job(

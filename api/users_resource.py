@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import abort, Resource
 
 from data import db_session
@@ -13,7 +13,16 @@ def abort_if_user_not_found(user_id):
         abort(404, message=f'User {user_id} not exist')
 
 
-class UsersResource(Resource):    # one user
+def abort_if_user_not_correct():
+    if not request.json:
+        abort(400, message='error: Empty request')
+    if not all(key in request.json for key in
+               ['email', 'name', 'position', 'surname', 'age',
+                'speciality', 'address']):
+        abort(400, message='error: Bad Request')
+
+
+class UsersResource(Resource):  # one user
     def get(self, user_id):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
@@ -32,6 +41,7 @@ class UsersResource(Resource):    # one user
         return jsonify({'success': 'OK'})
 
     def put(self, user_id):
+        abort_if_user_not_correct()
         abort_if_user_not_found(user_id)
         args = parser.parse_args()
         session = db_session.create_session()
@@ -49,7 +59,7 @@ class UsersResource(Resource):    # one user
         return jsonify({'success': 'OK'})
 
 
-class UsersListResource(Resource):     # all users
+class UsersListResource(Resource):  # all users
     def get(self):
         session = db_session.create_session()
         user = session.query(User).all()
@@ -62,6 +72,7 @@ class UsersListResource(Resource):     # all users
         })
 
     def post(self):
+        abort_if_user_not_correct()
         args = parser.parse_args()
         session = db_session.create_session()
         users = User(
